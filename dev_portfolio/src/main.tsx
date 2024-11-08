@@ -1,13 +1,12 @@
 import { RouterProvider } from 'react-router-dom';
 import { UserProvider } from './context/user/UserProvider';
 import React from 'react';
-import '@styles/index.css';
+import "./index.css"
 import { Provider } from 'react-redux';
 import { store, persistor } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { createRoot } from 'react-dom/client';
 import AuthObserver from './utils/authObserver./AuthObserver';
-import '@styles/OverrideFonts.css';
 import { router } from './routes/Routes';
 
 
