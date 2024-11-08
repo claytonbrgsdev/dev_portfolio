@@ -1,0 +1,12 @@
+/* General styles for the home component */
+.home {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Styles for the main sections */
+  .homeSection {
+    margin: 2.5rem;
+    margin-top: 1.1rem;
+    padding: 0;
+  }
