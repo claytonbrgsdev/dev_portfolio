@@ -1,14 +1,13 @@
 // src/redux/slices/authSlice.ts
-
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { User } from 'docTypes/user';
-import { RootState } from '@redux/store';
+import { User } from './../../types/user.ts'; 
+import { RootState } from '../store';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth } from '@services/firebase'; // Import auth from firebase.ts
+import { db, auth } from './../../services/firebase.ts';
 
 
 // Define the structure of the authentication state
@@ -36,7 +35,7 @@ export const signIn = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >(
   'auth/signIn',
-  async ({ email, password }, { rejectWithValue, dispatch }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -57,12 +56,6 @@ export const signIn = createAsyncThunk<
         const userData = userSnapshot.data() as User;
         const user: User = { ...userData, uid };
 
-        // Dispatch setCurrency based on user's country
-        if (user.country?.toLowerCase() === 'brazil') {
-          dispatch(setCurrency('BRL'));
-        } else {
-          dispatch(setCurrency('USD'));
-        }
 
         return user;
       } else {
@@ -89,7 +82,7 @@ export const fetchUserDetails = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >(
   'auth/fetchUserDetails',
-  async (uid, { rejectWithValue, dispatch }) => {
+  async (uid, { rejectWithValue }) => {
     try {
       const userDocRef = doc(db, 'users', uid);
       const userSnapshot = await getDoc(userDocRef);
@@ -98,14 +91,6 @@ export const fetchUserDetails = createAsyncThunk<
         const userData = userSnapshot.data();
         if (userData) {
           const user: User = { ...(userData as User), uid };
-
-          // Dispatch setCurrency based on user's country
-          if (user.country?.toLowerCase() === 'brazil') {
-            dispatch(setCurrency('BRL'));
-          } else {
-            dispatch(setCurrency('USD'));
-          }
-
           return user;
         } else {
           throw new Error('Invalid user data format.');
