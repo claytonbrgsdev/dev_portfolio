@@ -1,9 +1,13 @@
+import React from 'react';
+import '@styles/App.css';
+import MainLayout from './components/layout/mainLayout/MainLayout';
 
-
-export default function App() {
+const App: React.FC = () => {
   return (
-    <div>
-      
+    <div className='app-container'>
+      <MainLayout/>
     </div>
-  )
-}
+  );
+};
+
+export default App;
