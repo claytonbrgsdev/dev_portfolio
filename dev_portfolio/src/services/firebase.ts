@@ -1,5 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -16,8 +18,28 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-console.log(analytics)
+// Check if Firebase config has all necessary keys
+if (Object.values(firebaseConfig).some((value) => value === undefined)) {
+    console.error("Firebase configuration error: Missing environment variables", firebaseConfig);
+  }
+  
+  const app = initializeApp(firebaseConfig);
+  
+  const auth = getAuth(app);
+  setPersistence(auth, browserLocalPersistence)
+    .catch(error => {
+      console.error("Firebase auth persistence error:", error);
+    });
+  
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  let analytics;
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.error("Analytics initialization error:", error);
+  }
+  
+  export { auth, db, storage, analytics };
+  
