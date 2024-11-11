@@ -3,7 +3,7 @@ import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
 import styles from './MainLayout.module.css';
 import NavBar from '../navBar/NavBar';
-import Footer from '../footer/Footer';
+// import Footer from '../footer/Footer';
 
 const { Content } = Layout;
 
@@ -16,7 +16,7 @@ const MainLayout: React.FC = () => {
           <Outlet />
         </div>
       </Content>
-      <Footer/>
+      
     </Layout>
   );
 };

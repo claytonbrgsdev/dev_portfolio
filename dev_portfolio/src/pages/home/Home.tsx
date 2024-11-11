@@ -1,20 +1,17 @@
 import React from 'react';
-import styles from './Home.module.css'; 
+import styles from './Home.module.css';
 
 const Home: React.FC = () => {
 
     return (
-        <div className={styles.home} style={{ color: 'white'}}>
-            home
-            <h1 className={styles['title']}>
-                Clayton Borges *** DEV PORTFOLIO 
+        <div className={styles.home} style={{ color: 'white' }}>
+            <div className={styles.homeSection1}>
+                <h1 className={styles['title']}>
+                    HI, MY NAME IS CLAYTON. I'M A DEVELOPER. LET ME SHOW YOU MY WORK. SIT BACK AND SCROLL DOWN.
                 </h1>
-                <p>home</p>
-                <span>home</span>
-                <div>home</div>
-            <div className={styles.homeSection}>
-                home
-                
+            </div>
+            <div className={styles.homeSection2}>
+                test
             </div>
         </div>
     );
