@@ -7,7 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { createRoot } from 'react-dom/client';
 import AuthObserver from './utils/authObserver/AuthObserver';
 import { router } from './routes/Routes';
-import './index.css';
+import './styles/index.css';
 
 
 const rootElement = document.getElementById('root');
@@ -18,10 +18,10 @@ if (rootElement) {
     <React.StrictMode>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <UserProvider>
-            <AuthObserver />
+          {/* <UserProvider> */}
+            {/* <AuthObserver /> */}
             <RouterProvider router={router} />
-          </UserProvider>
+          {/* </UserProvider> */}
         </PersistGate>
       </Provider>
     </React.StrictMode> 

@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Home.module.css';
+import Scene from '../../components/specific/3D/Scene';
 
 const Home: React.FC = () => {
 
@@ -11,7 +12,7 @@ const Home: React.FC = () => {
                 </h1>
             </div>
             <div className={styles.homeSection2}>
-                test
+                <Scene/>
             </div>
         </div>
     );
