@@ -1,0 +1,17 @@
+/* src/assets/fonts/otr.css */
+
+@font-face {
+    font-family: 'OTRtype';
+    src: url('./OTRtype-Regular.woff2') format('woff2'),
+         url('./OTRtype-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'OTRtype';
+    src: url('./OTRtype-Bold.woff2') format('woff2'),
+         url('./OTRtype-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}

@@ -1,3 +1,25 @@
 .navbarContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  max-height: 4rem;
+  justify-content: space-between;
+  background-color: rgba(220, 220, 220, 0);
+  border: 1px solid white;
+}
+
+.menuTab {
+  color: white;
+  font-size: 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.menuItem {
+    color: white;
+}
+
+.title {
     border: 1px solid white;
 }
