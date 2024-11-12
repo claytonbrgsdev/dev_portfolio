@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, useEffect } from "react"
 import { useFrame } from "@react-three/fiber"
 import { Trail, useTexture } from "@react-three/drei"
 import * as THREE from "three"
@@ -103,6 +103,18 @@ export default function Jellyfish() {
     }
   }, [texture])
 
+  // Reset tentacles every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(resetTentacles, 10000); // Reset every 10 seconds
+    return () => clearInterval(interval);
+  }, [])
+
+  const resetTentacles = () => {
+    if (tentaclesRef.current) {
+      tentaclesRef.current.instanceMatrix.needsUpdate = true;
+    }
+  }
+
   useFrame((state) => {
     if (!jellyfishRef.current || !tentaclesRef.current || !shaderMaterialRef.current) return
 
@@ -110,11 +122,17 @@ export default function Jellyfish() {
     
     shaderMaterialRef.current.uniforms.uTime.value = time
     
+    // Swimming and pulsating motion
     const pulseFreq = 0.5
     const pulseAmp = 0.1
     const pulse = Math.sin(time * pulseFreq) * pulseAmp
-    jellyfishRef.current.scale.y = 1 + pulse
-
+    jellyfishRef.current.scale.set(1 + Math.sin(time * 2) * 0.05, 1 + pulse, 1 + Math.sin(time * 2) * 0.05)
+    
+    // Gentle drifting motion
+    jellyfishRef.current.position.y = Math.sin(time * 0.5) * 0.2
+    jellyfishRef.current.rotation.x = Math.sin(time * 0.15) * 0.05
+    jellyfishRef.current.rotation.z = Math.sin(time * 0.1) * 0.05
+    
     let segmentIndex = 0
     tentacleData.forEach((tentacle) => {
       for (let j = 0; j < tentacle.segments; j++) {
@@ -137,20 +155,18 @@ export default function Jellyfish() {
 
         let rotation = new THREE.Quaternion();
 
-if (j === 0) {
-  // Convert Euler to Quaternion if this is the first segment
-  const eulerRotation = new THREE.Euler(0, tentacle.angle, Math.PI / 2);
-  rotation.setFromEuler(eulerRotation);
-} else {
-  const prevMatrix = new THREE.Matrix4();
-  tentaclesRef.current?.getMatrixAt(segmentIndex - 1, prevMatrix);
-  const prevPosition = new THREE.Vector3();
-  prevPosition.setFromMatrixPosition(prevMatrix);
-  
-  const direction = new THREE.Vector3().subVectors(position, prevPosition);
-  rotation.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-}
- 
+        if (j === 0) {
+          const eulerRotation = new THREE.Euler(0, tentacle.angle, Math.PI / 2);
+          rotation.setFromEuler(eulerRotation);
+        } else {
+          const prevMatrix = new THREE.Matrix4();
+          tentaclesRef.current?.getMatrixAt(segmentIndex - 1, prevMatrix);
+          const prevPosition = new THREE.Vector3();
+          prevPosition.setFromMatrixPosition(prevMatrix);
+          
+          const direction = new THREE.Vector3().subVectors(position, prevPosition);
+          rotation.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+        }
 
         const scale = new THREE.Vector3(
           tentacle.thickness * (1 - segmentRatio * 0.7), // Taper the tentacle
@@ -165,9 +181,6 @@ if (j === 0) {
     })
     
     tentaclesRef.current.instanceMatrix.needsUpdate = true
-    
-    jellyfishRef.current.position.y = Math.sin(time * 0.5) * 0.2
-    jellyfishRef.current.rotation.y = Math.sin(time * 0.2) * 0.1
   })
 
   return (
@@ -211,4 +224,3 @@ if (j === 0) {
     </group>
   )
 }
-
