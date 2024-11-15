@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useMemo } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { 
   PerspectiveCamera, 
   Plane, 
@@ -25,7 +25,7 @@ interface CustomShaderMaterial extends THREE.ShaderMaterial {
 }
 
 const DeepSeaBackground = () => {
-  const { viewport } = useThree()
+  // const { viewport } = useThree()
   
   // Water surface
   const waterRef = useRef<THREE.Mesh>(null)

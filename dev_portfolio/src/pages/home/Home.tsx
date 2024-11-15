@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './Home.module.css';
-import Scene from '../../components/specific/3D/Scene';
+// import Scene from '../../components/specific/3D/Scene';
 
 const Home: React.FC = () => {
 
@@ -11,9 +11,9 @@ const Home: React.FC = () => {
                     HI, MY NAME IS CLAYTON. I'M A DEVELOPER. LET ME SHOW YOU MY WORK. SIT BACK AND SCROLL DOWN.
                 </h1>
             </div>
-            <div className={styles.homeSection2}>
+            {/* <div className={styles.homeSection2}>
                 <Scene/>
-            </div>
+            </div> */}
         </div>
     );
 };
