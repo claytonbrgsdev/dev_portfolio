@@ -1,13 +1,14 @@
 // useAnimationHandler.ts
 import { useAnimations } from '@react-three/drei';
 import { Group, AnimationClip, AnimationAction } from 'three';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 
 interface AnimationHandlerReturn {
   actions: { [key: string]: AnimationAction };
   play: (name: string) => void;
   stop: (name: string) => void;
   reset: (name: string) => void;
+  stopAll: () => void;
 }
 
 export const useAnimationHandler = (
@@ -18,10 +19,13 @@ export const useAnimationHandler = (
 ): AnimationHandlerReturn => {
   const { actions: originalActions } = useAnimations(animations, scene);
 
-  // Filter out null values from actions
-  const actions: { [key: string]: AnimationAction } = Object.fromEntries(
-    Object.entries(originalActions || {}).filter(([, action]) => action !== null)
-  ) as { [key: string]: AnimationAction };
+  // Memoize the filtered actions
+  const actions = useMemo(() => {
+    const filteredActions = Object.fromEntries(
+      Object.entries(originalActions || {}).filter(([, action]) => action !== null)
+    ) as { [key: string]: AnimationAction };
+    return filteredActions;
+  }, [originalActions]);
 
   // Automatically play the specified animation
   useEffect(() => {
@@ -30,33 +34,50 @@ export const useAnimationHandler = (
     }
   }, [actions, autoPlay, animationName]);
 
-  const play = (name: string) => {
-    if (actions[name]) {
-      actions[name].reset().play();
-      console.log(`Playing animation: ${name}`);
-    } else {
-      console.warn(`Animation "${name}" not found.`);
-    }
-  };
+  const play = useCallback(
+    (name: string) => {
+      if (actions[name]) {
+        actions[name].reset().play();
+        console.log(`Playing animation: ${name}`);
+      } else {
+        console.warn(`Animation "${name}" not found.`);
+      }
+    },
+    [actions]
+  );
 
-  const stop = (name: string) => {
-    if (actions[name]) {
-      actions[name].stop();
-      console.log(`Stopped animation: ${name}`);
-    }
-  };
+  const stop = useCallback(
+    (name: string) => {
+      if (actions[name]) {
+        actions[name].stop();
+        console.log(`Stopped animation: ${name}`);
+      }
+    },
+    [actions]
+  );
 
-  const reset = (name: string) => {
-    if (actions[name]) {
-      actions[name].reset();
-      console.log(`Reset animation: ${name}`);
-    }
-  };
+  const reset = useCallback(
+    (name: string) => {
+      if (actions[name]) {
+        actions[name].reset();
+        console.log(`Reset animation: ${name}`);
+      }
+    },
+    [actions]
+  );
+
+  const stopAll = useCallback(() => {
+    Object.values(actions).forEach((action) => {
+      action.stop();
+    });
+    console.log('All animations stopped.');
+  }, [actions]);
 
   return {
     actions,
     play,
     stop,
     reset,
+    stopAll,
   };
 };

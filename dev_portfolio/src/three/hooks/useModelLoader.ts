@@ -1,12 +1,12 @@
 // useModelLoader.ts
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 export const useModelLoader = (url: string) => {
   const model = useGLTF(url);
 
-  // Extract animation names
-  const animationNames = model.animations.map((anim) => anim.name);
+  // Memoize animation names
+  const animationNames = useMemo(() => model.animations.map((anim) => anim.name), [model.animations]);
 
   // Debug logs
   useEffect(() => {

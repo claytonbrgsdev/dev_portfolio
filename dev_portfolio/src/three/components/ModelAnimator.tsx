@@ -16,7 +16,7 @@ const ModelAnimator: React.FC<ModelAnimatorProps> = ({
   animationName,
   autoPlayAnimation = true,
 }) => {
-  const { actions, play } = useAnimationHandler(
+  const { actions, play, stopAll } = useAnimationHandler(
     animations,
     scene,
     animationName,
@@ -27,13 +27,12 @@ const ModelAnimator: React.FC<ModelAnimatorProps> = ({
     if (animationName && actions[animationName]) {
       console.log(`Playing animation: ${animationName}`);
       play(animationName);
-    } else if (autoPlayAnimation && animations.length > 0) {
-      console.log(`Playing default animation: ${animations[0].name}`);
-      play(animations[0].name);
-    } else {
-      console.warn('No animation found or configured to play.');
+    } else if (!animationName) {
+      // Stop all animations when animationName is undefined
+      stopAll();
+      console.log('Stopped all animations');
     }
-  }, [animationName, actions, play, autoPlayAnimation, animations]);
+  }, [animationName, actions, play, stopAll]);
 
   return null;
 };
