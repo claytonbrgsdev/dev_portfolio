@@ -26,20 +26,21 @@ const CanvasLayout: React.FC = () => {
 
         {/* Model with animation */}
         <ModelRenderer
-          url="/models/Crystal-jelly/Crystal-jelly.gltf"
-          scale={[1, 1, 1]}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
-        >
-          {(scene: Group, animations: AnimationClip[]) => (
-            <ModelAnimator
-              scene={scene}
-              animations={animations}
-              animationName="Idle" // Update to the desired animation name
-              autoPlayAnimation={true}
-            />
-          )}
-        </ModelRenderer>
+  url="/models/Crystal-jelly/Crystal-jelly.gltf"
+  textureUrl="/models/Crystal-jelly/Crystal-jelly_tex.png" // Adicione a URL da textura
+  scale={[1, 1, 1]}
+  position={[0, 0, 0]}
+  rotation={[0, 0, 0]}
+>
+  {(scene: Group, animations: AnimationClip[]) => (
+    <ModelAnimator
+      scene={scene}
+      animations={animations}
+      animationName="Idle"
+      autoPlayAnimation={true}
+    />
+  )}
+</ModelRenderer>
       </Canvas>
     </>
   );
