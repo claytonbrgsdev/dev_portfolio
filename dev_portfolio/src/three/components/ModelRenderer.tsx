@@ -1,9 +1,11 @@
-// ModelRenderer.tsx
+// src/three/components/ModelRenderer.tsx
+
 import React, { Suspense } from 'react';
 import { Html, useProgress } from '@react-three/drei';
 import { useModelLoader } from '../hooks/useModelLoader';
 import { useTextureLoader } from '../hooks/useTextureLoader';
-import { Group, AnimationClip } from 'three';
+import { Group, AnimationClip, Material } from 'three';
+import { HierarchyNode } from '../utils/modelUtils';
 
 interface ModelRendererProps {
   url: string;
@@ -14,7 +16,9 @@ interface ModelRendererProps {
   children?: (
     scene: Group,
     animations: AnimationClip[],
-    animationNames: string[]
+    animationNames: string[],
+    materials: Material[],
+    hierarchy: HierarchyNode[]
   ) => React.ReactNode;
 }
 
@@ -30,7 +34,7 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
   const { applyToMaterial } = useTextureLoader(textureUrl);
   const { progress } = useProgress();
 
-  // Fallback in case of an error
+  // Fallback in case of an error or if model is null
   if (!model) {
     return (
       <Html>
@@ -39,14 +43,14 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
     );
   }
 
+  const { scene, animations, animationNames, materials, hierarchy } = model;
+
   // Apply texture to the model's materials
-  if (model.materials && textureUrl) {
-    Object.values(model.materials).forEach((material) => {
+  if (materials && textureUrl) {
+    materials.forEach((material) => {
       applyToMaterial(material);
     });
   }
-
-  const { scene, animations, animationNames } = model;
 
   return (
     <Suspense
@@ -58,7 +62,8 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
     >
       <group scale={scale} position={position} rotation={rotation}>
         <primitive object={scene} dispose={null} />
-        {children && children(scene, animations, animationNames)}
+        {children &&
+          children(scene, animations, animationNames, materials, hierarchy)}
       </group>
     </Suspense>
   );
