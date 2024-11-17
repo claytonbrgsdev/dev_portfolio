@@ -14,8 +14,18 @@ const CanvasLayout: React.FC = () => {
   );
   const [animationNames, setAnimationNames] = useState<string[]>([]);
 
+  // Model and texture URLs
   const modelUrl = '/models/Crystal-jelly/Crystal-jelly.gltf';
   const textureUrl = '/models/Crystal-jelly/Crystal-jelly_tex.png';
+
+  // Include only the texture maps your model uses
+  // If the model doesn't use these maps, you can omit them
+  const normalMapUrl = '/models/Crystal-jelly/Crystal-jelly_tex.png';
+  // const bumpMapUrl = '/path/to/bumpMap.png';
+  // const displacementMapUrl = '/path/to/displacementMap.png';
+  // const roughnessMapUrl = '/path/to/roughnessMap.png';
+  // const metalnessMapUrl = '/path/to/metalnessMap.png';
+  // const aoMapUrl = '/path/to/aoMap.png';
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
@@ -74,6 +84,13 @@ const CanvasLayout: React.FC = () => {
         <ModelRenderer
           url={modelUrl}
           textureUrl={textureUrl}
+          // Pass only the maps that your model uses
+        //   normalMapUrl={normalMapUrl}
+          // bumpMapUrl={bumpMapUrl}
+          displacementMapUrl={normalMapUrl}
+          // roughnessMapUrl={roughnessMapUrl}
+          // metalnessMapUrl={metalnessMapUrl}
+          // aoMapUrl={aoMapUrl}
           scale={[1, 1, 1]}
           position={[0, 0, 0]}
           rotation={[0, 0, 0]}
@@ -82,14 +99,13 @@ const CanvasLayout: React.FC = () => {
             scene: Group,
             animations: AnimationClip[],
             animNames: string[],
-            materials: Material[],
+            _materials: Material[],
             hierarchy: HierarchyNode[]
           ) => (
             <AnimatedModel
               scene={scene}
               animations={animations}
               animNames={animNames}
-              materials={materials}
               hierarchy={hierarchy}
               animationName={animationName}
               setAnimationName={setAnimationName}
@@ -109,7 +125,6 @@ interface AnimatedModelProps {
   scene: Group;
   animations: AnimationClip[];
   animNames: string[];
-  materials: Material[];
   hierarchy: HierarchyNode[];
   animationName: string | undefined;
   setAnimationName: React.Dispatch<React.SetStateAction<string | undefined>>;

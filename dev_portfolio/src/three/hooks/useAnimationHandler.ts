@@ -1,4 +1,5 @@
-// useAnimationHandler.ts
+// src/three/hooks/useAnimationHandler.ts
+
 import { useAnimations } from '@react-three/drei';
 import { Group, AnimationClip, AnimationAction } from 'three';
 import { useEffect, useMemo, useCallback } from 'react';

@@ -3,9 +3,9 @@
 import React, { Suspense } from 'react';
 import { Html, useProgress } from '@react-three/drei';
 import { useModelLoader } from '../hooks/useModelLoader';
-import { useTextureLoader } from '../hooks/useTextureLoader';
 import { Group, AnimationClip, Material } from 'three';
 import { HierarchyNode } from '../utils/modelUtils';
+import TextureApplier from './TextureApplier';
 
 interface ModelRendererProps {
   url: string;
@@ -13,6 +13,12 @@ interface ModelRendererProps {
   position?: [number, number, number];
   rotation?: [number, number, number];
   textureUrl?: string;
+  normalMapUrl?: string;
+  bumpMapUrl?: string;
+  displacementMapUrl?: string;
+  roughnessMapUrl?: string;
+  metalnessMapUrl?: string;
+  aoMapUrl?: string;
   children?: (
     scene: Group,
     animations: AnimationClip[],
@@ -28,10 +34,15 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
   position = [0, 0, 0],
   rotation = [0, 0, 0],
   textureUrl,
+  normalMapUrl,
+  bumpMapUrl,
+  displacementMapUrl,
+  roughnessMapUrl,
+  metalnessMapUrl,
+  aoMapUrl,
   children,
 }) => {
   const model = useModelLoader(url);
-  const { applyToMaterial } = useTextureLoader(textureUrl);
   const { progress } = useProgress();
 
   // Fallback in case of an error or if model is null
@@ -45,13 +56,6 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
 
   const { scene, animations, animationNames, materials, hierarchy } = model;
 
-  // Apply texture to the model's materials
-  if (materials && textureUrl) {
-    materials.forEach((material) => {
-      applyToMaterial(material);
-    });
-  }
-
   return (
     <Suspense
       fallback={
@@ -62,6 +66,21 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
     >
       <group scale={scale} position={position} rotation={rotation}>
         <primitive object={scene} dispose={null} />
+
+        {/* Apply textures to materials */}
+        {materials && (
+          <TextureApplier
+            materials={materials}
+            textureUrl={textureUrl}
+            normalMapUrl={normalMapUrl}
+            bumpMapUrl={bumpMapUrl}
+            displacementMapUrl={displacementMapUrl}
+            roughnessMapUrl={roughnessMapUrl}
+            metalnessMapUrl={metalnessMapUrl}
+            aoMapUrl={aoMapUrl}
+          />
+        )}
+
         {children &&
           children(scene, animations, animationNames, materials, hierarchy)}
       </group>

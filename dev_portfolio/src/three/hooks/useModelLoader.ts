@@ -1,7 +1,7 @@
 // src/three/hooks/useModelLoader.ts
 
 import { useEffect, useMemo } from 'react';
-import { usePreloadedModel } from '../preloadModels';
+import { usePreloadedModel } from '../utils/preloadModels';
 import {
   getAnimationNames,
   getMaterialList,
