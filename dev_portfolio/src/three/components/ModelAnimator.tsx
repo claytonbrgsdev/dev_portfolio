@@ -1,4 +1,4 @@
-// src/three/components/ModelAnimator.tsx
+// ModelAnimator.tsx
 import React, { useEffect } from 'react';
 import { Group, AnimationClip } from 'three';
 import { useAnimationHandler } from '../hooks/useAnimationHandler';
@@ -23,25 +23,19 @@ const ModelAnimator: React.FC<ModelAnimatorProps> = ({
     autoPlayAnimation
   );
 
-  // Log para verificar o carregamento das animações
-  console.log('ModelAnimator: Animações carregadas:', animations);
-  console.log('ModelAnimator: Actions configuradas:', actions);
-  console.log('ModelAnimator: Nome da animação atual:', animationName);
-
-  // Reproduz a animação especificada ao alterar o nome
   useEffect(() => {
-    if (animationName && actions?.[animationName]) {
-      console.log(`Reproduzindo animação: ${animationName}`);
+    if (animationName && actions[animationName]) {
+      console.log(`Playing animation: ${animationName}`);
       play(animationName);
     } else if (autoPlayAnimation && animations.length > 0) {
-      console.log('Reproduzindo animação padrão:', animations[0]?.name);
-      play(animations[0]?.name);
+      console.log(`Playing default animation: ${animations[0].name}`);
+      play(animations[0].name);
     } else {
-      console.warn('Nenhuma animação encontrada ou configurada para reprodução.');
+      console.warn('No animation found or configured to play.');
     }
   }, [animationName, actions, play, autoPlayAnimation, animations]);
 
-  return null; // Não renderiza nada diretamente
+  return null;
 };
 
 export default ModelAnimator;

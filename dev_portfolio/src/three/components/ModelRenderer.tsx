@@ -1,17 +1,21 @@
-// src/three/components/ModelRenderer.tsx
+// ModelRenderer.tsx
 import React, { Suspense } from 'react';
 import { Html, useProgress } from '@react-three/drei';
 import { useModelLoader } from '../hooks/useModelLoader';
-import { useTextureLoader } from '../hooks/useTextureLoader'; // Importa o useTextureLoader
+import { useTextureLoader } from '../hooks/useTextureLoader';
 import { Group, AnimationClip } from 'three';
 
 interface ModelRendererProps {
-  url: string; // Path to the GLTF model
-  scale?: [number, number, number]; // Optional model scale
-  position?: [number, number, number]; // Optional model position
-  rotation?: [number, number, number]; // Optional model rotation
-  textureUrl?: string; // Optional texture URL
-  children?: (scene: Group, animations: AnimationClip[]) => React.ReactNode; // Children as render prop
+  url: string;
+  scale?: [number, number, number];
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  textureUrl?: string;
+  children?: (
+    scene: Group,
+    animations: AnimationClip[],
+    animationNames: string[]
+  ) => React.ReactNode;
 }
 
 const ModelRenderer: React.FC<ModelRendererProps> = ({
@@ -19,13 +23,11 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
   scale = [1, 1, 1],
   position = [0, 0, 0],
   rotation = [0, 0, 0],
-  textureUrl, // Recebe a textura como prop
+  textureUrl,
   children,
 }) => {
   const model = useModelLoader(url);
-  const { applyToMaterial } = useTextureLoader(textureUrl); // Remove `texture`
-
-  // Show loader while the model is being loaded
+  const { applyToMaterial } = useTextureLoader(textureUrl);
   const { progress } = useProgress();
 
   // Fallback in case of an error
@@ -37,18 +39,26 @@ const ModelRenderer: React.FC<ModelRendererProps> = ({
     );
   }
 
-  // Aplica a textura aos materiais do modelo
-  if (model.materials) {
+  // Apply texture to the model's materials
+  if (model.materials && textureUrl) {
     Object.values(model.materials).forEach((material) => {
       applyToMaterial(material);
     });
   }
 
+  const { scene, animations, animationNames } = model;
+
   return (
-    <Suspense fallback={<Html><span>Loading... {progress.toFixed(0)}%</span></Html>}>
+    <Suspense
+      fallback={
+        <Html>
+          <span>Loading... {progress.toFixed(0)}%</span>
+        </Html>
+      }
+    >
       <group scale={scale} position={position} rotation={rotation}>
-        <primitive object={model.scene} dispose={null} />
-        {children && children(model.scene, model.animations)} {/* Pass scene and animations */}
+        <primitive object={scene} dispose={null} />
+        {children && children(scene, animations, animationNames)}
       </group>
     </Suspense>
   );

@@ -1,10 +1,10 @@
-// src/three/hooks/useAnimationHandler.ts
+// useAnimationHandler.ts
 import { useAnimations } from '@react-three/drei';
 import { Group, AnimationClip, AnimationAction } from 'three';
 import { useEffect } from 'react';
 
 interface AnimationHandlerReturn {
-  actions: { [key: string]: AnimationAction }; // Garantir que não há `null`
+  actions: { [key: string]: AnimationAction };
   play: (name: string) => void;
   stop: (name: string) => void;
   reset: (name: string) => void;
@@ -16,30 +16,45 @@ export const useAnimationHandler = (
   animationName?: string,
   autoPlay: boolean = true
 ): AnimationHandlerReturn => {
-  const { actions } = useAnimations(animations, scene);
+  const { actions: originalActions } = useAnimations(animations, scene);
 
-  // Filtrar ações para remover valores nulos
-  const filteredActions: { [key: string]: AnimationAction } = Object.fromEntries(
-    Object.entries(actions || {}).filter(
-      ([, action]) => action !== null
-    )
+  // Filter out null values from actions
+  const actions: { [key: string]: AnimationAction } = Object.fromEntries(
+    Object.entries(originalActions || {}).filter(([, action]) => action !== null)
   ) as { [key: string]: AnimationAction };
 
-  // Reproduz automaticamente a animação padrão ou especificada
+  // Automatically play the specified animation
   useEffect(() => {
-    if (filteredActions && autoPlay && animations.length > 0) {
-      const defaultAnimation = animationName || animations[0]?.name;
-      filteredActions[defaultAnimation]?.play();
+    if (autoPlay && animationName && actions[animationName]) {
+      actions[animationName].play();
     }
-  }, [filteredActions, autoPlay, animations, animationName]);
+  }, [actions, autoPlay, animationName]);
 
-  // Métodos para manipulação das animações
-  const play = (name: string) => filteredActions?.[name]?.play();
-  const stop = (name: string) => filteredActions?.[name]?.stop();
-  const reset = (name: string) => filteredActions?.[name]?.reset();
+  const play = (name: string) => {
+    if (actions[name]) {
+      actions[name].reset().play();
+      console.log(`Playing animation: ${name}`);
+    } else {
+      console.warn(`Animation "${name}" not found.`);
+    }
+  };
+
+  const stop = (name: string) => {
+    if (actions[name]) {
+      actions[name].stop();
+      console.log(`Stopped animation: ${name}`);
+    }
+  };
+
+  const reset = (name: string) => {
+    if (actions[name]) {
+      actions[name].reset();
+      console.log(`Reset animation: ${name}`);
+    }
+  };
 
   return {
-    actions: filteredActions,
+    actions,
     play,
     stop,
     reset,
