@@ -1,20 +1,37 @@
+// src/pages/home/Home.tsx
 import React from 'react';
 import styles from './Home.module.css';
-// import Scene from '../../components/specific/3D/Scene';
+import CanvasLayout from '../../components/Three/canvasLayout/CanvasLayout';
+// import CanvasLayout2 from '../../components/Three/canvasLayout/CanvasLayout2';
+// import CanvasLayout3 from '../../components/Three/canvasLayout/CanvasLayout3';
+// import CanvasLayout4 from '../../components/Three/canvasLayout/CanvasLayout4';
 
 const Home: React.FC = () => {
-
     return (
-        <div className={styles.home} style={{ color: 'white' }}>
-            <div className={styles.homeSection1}>
-                <h1 className={styles['title']}>
-                    HI, MY NAME IS CLAYTON. I'M A DEVELOPER. LET ME SHOW YOU MY WORK. SIT BACK AND SCROLL DOWN.
-                </h1>
+        <div
+            className={styles.home}
+            style={{
+                height: "440vh",
+                overflowY: 'scroll',
+                scrollSnapType: 'y mandatory',
+            }}
+        >
+            {/* <h1 style={{ color: "white" }}>isto é a home</h1> */}
+
+            <div style={{ height: '100vh', width: "100%", scrollSnapAlign: 'start' }}>
+                <CanvasLayout />
             </div>
-            {/* <div className={styles.homeSection2}>
-                <Scene/>
-            </div> */}
+            {/* <div style={{ height: '100vh', width: "100%", scrollSnapAlign: 'start' }}>
+                <CanvasLayout2 />
+            </div>
+            <div style={{ height: '100vh', width: "100%", scrollSnapAlign: 'start' }}>
+                <CanvasLayout3 />
+            </div>
+            <div style={{ height: '100vh', width: "100%", scrollSnapAlign: 'start' }}>
+                <CanvasLayout4 />
+            </div>  */}
         </div>
+
     );
 };
 
