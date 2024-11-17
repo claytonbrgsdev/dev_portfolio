@@ -63,6 +63,7 @@ const DeepSeaBackground = () => {
     }
     if (ambientParticlesRef.current) {
       ambientParticlesRef.current.rotation.y += delta * 0.05
+      console.log(`só pra parar de reclamar, esse é o state: ${state}`)
     }
     if (risingParticlesRef.current) {
       const positions = risingParticlesRef.current.geometry.attributes.position.array as Float32Array
