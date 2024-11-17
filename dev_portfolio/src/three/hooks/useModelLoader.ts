@@ -1,11 +1,18 @@
-// src/three/hooks/useModelLoader.ts
+// useModelLoader.ts
+import { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 export const useModelLoader = (url: string) => {
-  console.log(`Tentando carregar modelo: ${url}`);
+  const model = useGLTF(url);
 
-  // UseGLTF deve ser chamado de maneira consistente
-  const gltf = useGLTF(url);
+  // Extract animation names
+  const animationNames = model.animations.map((anim) => anim.name);
 
-  return gltf; // Apenas retorna o modelo carregado
+  // Debug logs
+  useEffect(() => {
+    console.log(`Model loaded: ${url}`);
+    console.log('Available animations in the model:', animationNames);
+  }, [url, animationNames]);
+
+  return { ...model, animationNames }; // Return the model with animationNames
 };
