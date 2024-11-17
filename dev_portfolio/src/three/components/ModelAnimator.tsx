@@ -1,7 +1,8 @@
-// ModelAnimator.tsx
-import React, { useEffect } from 'react';
+// src/three/components/ModelAnimator.tsx
+
+import React from 'react';
+import { useAnimations } from '@react-three/drei';
 import { Group, AnimationClip } from 'three';
-import { useAnimationHandler } from '../hooks/useAnimationHandler';
 
 interface ModelAnimatorProps {
   scene: Group;
@@ -16,23 +17,20 @@ const ModelAnimator: React.FC<ModelAnimatorProps> = ({
   animationName,
   autoPlayAnimation = true,
 }) => {
-  const { actions, play, stopAll } = useAnimationHandler(
-    animations,
-    scene,
-    animationName,
-    autoPlayAnimation
-  );
+  const { actions } = useAnimations(animations, scene);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (animationName && actions[animationName]) {
-      console.log(`Playing animation: ${animationName}`);
-      play(animationName);
-    } else if (!animationName) {
-      // Stop all animations when animationName is undefined
-      stopAll();
-      console.log('Stopped all animations');
+      if (autoPlayAnimation) {
+        actions[animationName].reset().play();
+      }
     }
-  }, [animationName, actions, play, stopAll]);
+    return () => {
+      if (animationName && actions[animationName]) {
+        actions[animationName].stop();
+      }
+    };
+  }, [actions, animationName, autoPlayAnimation]);
 
   return null;
 };

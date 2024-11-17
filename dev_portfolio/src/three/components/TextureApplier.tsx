@@ -1,15 +1,14 @@
 // src/three/components/TextureApplier.tsx
 
-import React, { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import {
   Material,
   MeshStandardMaterial,
   MeshPhysicalMaterial,
   MeshPhongMaterial,
   MeshLambertMaterial,
-  TextureLoader,
+  Texture,
 } from 'three';
-import { useLoader } from '@react-three/fiber';
 
 interface TextureApplierProps {
   materials: Material[];
@@ -20,10 +19,16 @@ interface TextureApplierProps {
   roughnessMapUrl?: string;
   metalnessMapUrl?: string;
   aoMapUrl?: string;
+  textures: {
+    texture: Texture;
+    normalMap: Texture;
+    bumpMap: Texture;
+    displacementMap: Texture;
+    roughnessMap: Texture;
+    metalnessMap: Texture;
+    aoMap: Texture;
+  };
 }
-
-const transparentPixel =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAnRSTlMA/1uRIrUAAAANSURBVAjXY2AgDQAAADAAAceqhY4AAAAASUVORK5CYII=';
 
 const TextureApplier: React.FC<TextureApplierProps> = ({
   materials,
@@ -34,30 +39,9 @@ const TextureApplier: React.FC<TextureApplierProps> = ({
   roughnessMapUrl,
   metalnessMapUrl,
   aoMapUrl,
+  textures,
 }) => {
-  // Prepare an array of texture URLs, substituting missing URLs with a transparent pixel
-  const textureUrls = [
-    textureUrl || transparentPixel,
-    normalMapUrl || transparentPixel,
-    bumpMapUrl || transparentPixel,
-    displacementMapUrl || transparentPixel,
-    roughnessMapUrl || transparentPixel,
-    metalnessMapUrl || transparentPixel,
-    aoMapUrl || transparentPixel,
-  ];
-
-  // Load all textures unconditionally
-  const [
-    texture,
-    normalMap,
-    bumpMap,
-    displacementMap,
-    roughnessMap,
-    metalnessMap,
-    aoMap,
-  ] = useLoader(TextureLoader, textureUrls);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     materials.forEach((material) => {
       let needsUpdate = false;
 
@@ -66,31 +50,31 @@ const TextureApplier: React.FC<TextureApplierProps> = ({
         material instanceof MeshPhysicalMaterial
       ) {
         if (textureUrl) {
-          material.map = texture;
+          material.map = textures.texture;
           needsUpdate = true;
         }
         if (normalMapUrl) {
-          material.normalMap = normalMap;
+          material.normalMap = textures.normalMap;
           needsUpdate = true;
         }
         if (bumpMapUrl) {
-          material.bumpMap = bumpMap;
+          material.bumpMap = textures.bumpMap;
           needsUpdate = true;
         }
         if (displacementMapUrl) {
-          material.displacementMap = displacementMap;
+          material.displacementMap = textures.displacementMap;
           needsUpdate = true;
         }
         if (roughnessMapUrl) {
-          material.roughnessMap = roughnessMap;
+          material.roughnessMap = textures.roughnessMap;
           needsUpdate = true;
         }
         if (metalnessMapUrl) {
-          material.metalnessMap = metalnessMap;
+          material.metalnessMap = textures.metalnessMap;
           needsUpdate = true;
         }
         if (aoMapUrl) {
-          material.aoMap = aoMap;
+          material.aoMap = textures.aoMap;
           needsUpdate = true;
         }
       } else if (
@@ -98,25 +82,24 @@ const TextureApplier: React.FC<TextureApplierProps> = ({
         material instanceof MeshLambertMaterial
       ) {
         if (textureUrl) {
-          material.map = texture;
+          material.map = textures.texture;
           needsUpdate = true;
         }
         if (bumpMapUrl) {
-          material.bumpMap = bumpMap;
+          material.bumpMap = textures.bumpMap;
           needsUpdate = true;
         }
         if (displacementMapUrl) {
-          material.displacementMap = displacementMap;
+          material.displacementMap = textures.displacementMap;
           needsUpdate = true;
         }
-        // MeshPhongMaterial supports normalMap and aoMap
         if (material instanceof MeshPhongMaterial) {
           if (normalMapUrl) {
-            material.normalMap = normalMap;
+            material.normalMap = textures.normalMap;
             needsUpdate = true;
           }
           if (aoMapUrl) {
-            material.aoMap = aoMap;
+            material.aoMap = textures.aoMap;
             needsUpdate = true;
           }
         }
@@ -128,6 +111,7 @@ const TextureApplier: React.FC<TextureApplierProps> = ({
     });
   }, [
     materials,
+    textures,
     textureUrl,
     normalMapUrl,
     bumpMapUrl,
@@ -135,16 +119,9 @@ const TextureApplier: React.FC<TextureApplierProps> = ({
     roughnessMapUrl,
     metalnessMapUrl,
     aoMapUrl,
-    texture,
-    normalMap,
-    bumpMap,
-    displacementMap,
-    roughnessMap,
-    metalnessMap,
-    aoMap,
   ]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default TextureApplier;

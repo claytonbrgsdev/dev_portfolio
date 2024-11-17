@@ -6,6 +6,8 @@ import { GLTF } from 'three-stdlib'; // Updated import
 /**
  * Interface representing a node in the object hierarchy.
  */
+// src/three/utils/modelUtils.ts
+
 export interface HierarchyNode {
   name: string;
   type: string;

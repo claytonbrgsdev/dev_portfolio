@@ -1,31 +1,46 @@
 // src/components/Three/canvasLayout/CanvasLayout.tsx
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import ModelRenderer from '../../../three/components/ModelRenderer';
-import ModelAnimator from '../../../three/components/ModelAnimator';
-import { Group, AnimationClip, Material } from 'three';
-import { HierarchyNode } from '../../../three/utils/modelUtils';
+import { Group, AnimationClip } from 'three';
+import modelsUrls from '../../../three/models/modelsUrls';
+import modelInstances from '../../../three/models/modelsInstances';
+import AnimatedModel, { AnimatedModelRef } from '../../../three/components/AnimatedModel';
+
+interface AnimationControl {
+  playAll: boolean;
+  stopAll: boolean;
+}
 
 const CanvasLayout: React.FC = () => {
-  const [animationName, setAnimationName] = useState<string | undefined>(
-    undefined
-  );
-  const [animationNames, setAnimationNames] = useState<string[]>([]);
+  const [animationControl, setAnimationControl] = useState<AnimationControl>({
+    playAll: false,
+    stopAll: false,
+  });
 
-  // Model and texture URLs
-  const modelUrl = '/models/Crystal-jelly/Crystal-jelly.gltf';
-  const textureUrl = '/models/Crystal-jelly/Crystal-jelly_tex.png';
+  const modelAnimRefs = useRef<{ [key: string]: React.RefObject<AnimatedModelRef> }>({});
 
-  // Include only the texture maps your model uses
-  // If the model doesn't use these maps, you can omit them
-  const normalMapUrl = '/models/Crystal-jelly/Crystal-jelly_tex.png';
-  // const bumpMapUrl = '/path/to/bumpMap.png';
-  // const displacementMapUrl = '/path/to/displacementMap.png';
-  // const roughnessMapUrl = '/path/to/roughnessMap.png';
-  // const metalnessMapUrl = '/path/to/metalnessMap.png';
-  // const aoMapUrl = '/path/to/aoMap.png';
+  modelInstances.forEach((instance) => {
+    if (!modelAnimRefs.current[instance.id]) {
+      modelAnimRefs.current[instance.id] = React.createRef<AnimatedModelRef>();
+    }
+  });
+
+  const handlePlayAnimations = () => {
+    setAnimationControl({ playAll: true, stopAll: false });
+    Object.values(modelAnimRefs.current).forEach((ref) => {
+      ref.current?.playAnimation();
+    });
+  };
+
+  const handleStopAnimations = () => {
+    setAnimationControl({ playAll: false, stopAll: true });
+    Object.values(modelAnimRefs.current).forEach((ref) => {
+      ref.current?.stopAnimation();
+    });
+  };
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
@@ -41,25 +56,8 @@ const CanvasLayout: React.FC = () => {
           gap: '10px',
         }}
       >
-        {animationNames.map((name) => (
-          <button
-            key={name}
-            onClick={() => setAnimationName(name)}
-            style={{
-              padding: '10px',
-              borderRadius: '5px',
-              backgroundColor: '#444',
-              color: '#fff',
-            }}
-          >
-            Play {name} Animation
-          </button>
-        ))}
         <button
-          onClick={() => {
-            setAnimationName(undefined);
-            console.log('Stop Animation clicked');
-          }}
+          onClick={handlePlayAnimations}
           style={{
             padding: '10px',
             borderRadius: '5px',
@@ -67,12 +65,23 @@ const CanvasLayout: React.FC = () => {
             color: '#fff',
           }}
         >
-          Stop Animation
+          Play Animations
+        </button>
+        <button
+          onClick={handleStopAnimations}
+          style={{
+            padding: '10px',
+            borderRadius: '5px',
+            backgroundColor: '#444',
+            color: '#fff',
+          }}
+        >
+          Stop Animations
         </button>
       </div>
 
       {/* Canvas for rendering 3D scene */}
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+      <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
         {/* Orbit Controls */}
         <OrbitControls enableZoom={true} />
 
@@ -80,108 +89,60 @@ const CanvasLayout: React.FC = () => {
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
 
-        {/* Model Renderer */}
-        <ModelRenderer
-          url={modelUrl}
-          textureUrl={textureUrl}
-          // Pass only the maps that your model uses
-        //   normalMapUrl={normalMapUrl}
-          // bumpMapUrl={bumpMapUrl}
-          displacementMapUrl={normalMapUrl}
-          // roughnessMapUrl={roughnessMapUrl}
-          // metalnessMapUrl={metalnessMapUrl}
-          // aoMapUrl={aoMapUrl}
-          scale={[1, 1, 1]}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
-        >
-          {(
-            scene: Group,
-            animations: AnimationClip[],
-            animNames: string[],
-            _materials: Material[],
-            hierarchy: HierarchyNode[]
-          ) => (
-            <AnimatedModel
-              scene={scene}
-              animations={animations}
-              animNames={animNames}
-              hierarchy={hierarchy}
-              animationName={animationName}
-              setAnimationName={setAnimationName}
-              setAnimationNames={setAnimationNames}
-            />
-          )}
-        </ModelRenderer>
+        {/* Render each model instance */}
+        {modelInstances.map((instance) => {
+          const modelData = modelsUrls[instance.name];
+          if (!modelData) {
+            console.error(`Model data for "${instance.name}" not found.`);
+            return null;
+          }
+
+          const {
+            modelUrl,
+            textureUrl,
+            normalMapUrl,
+            bumpMapUrl,
+            displacementMapUrl,
+            roughnessMapUrl,
+            metalnessMapUrl,
+            aoMapUrl,
+          } = modelData;
+
+          const {
+            position = [0, 0, 0],
+            rotation = [0, 0, 0],
+            scale = [1, 1, 1],
+          } = instance;
+
+          return (
+            <ModelRenderer
+              key={instance.id}
+              url={modelUrl}
+              textureUrl={textureUrl}
+              normalMapUrl={normalMapUrl}
+              bumpMapUrl={bumpMapUrl}
+              displacementMapUrl={displacementMapUrl}
+              roughnessMapUrl={roughnessMapUrl}
+              metalnessMapUrl={metalnessMapUrl}
+              aoMapUrl={aoMapUrl}
+              scale={scale}
+              position={position}
+              rotation={rotation}
+            >
+              {(scene: Group, animations: AnimationClip[]) => (
+                <AnimatedModel
+                  ref={modelAnimRefs.current[instance.id]}
+                  scene={scene}
+                  animations={animations}
+                  animationControl={animationControl}
+                />
+              )}
+            </ModelRenderer>
+          );
+        })}
       </Canvas>
     </div>
   );
 };
 
 export default CanvasLayout;
-
-// Define the AnimatedModel component
-interface AnimatedModelProps {
-  scene: Group;
-  animations: AnimationClip[];
-  animNames: string[];
-  hierarchy: HierarchyNode[];
-  animationName: string | undefined;
-  setAnimationName: React.Dispatch<React.SetStateAction<string | undefined>>;
-  setAnimationNames: React.Dispatch<React.SetStateAction<string[]>>;
-}
-
-const AnimatedModel: React.FC<AnimatedModelProps> = ({
-  scene,
-  animations,
-  animNames,
-  hierarchy,
-  animationName,
-  setAnimationName,
-  setAnimationNames,
-}) => {
-  const memoizedAnimNames = useMemo(() => animNames, [animNames]);
-
-  // Ref to track if default animationName has been set
-  const hasSetDefaultAnimationName = useRef(false);
-
-  // Set the animation names when they are available
-  useEffect(() => {
-    if (memoizedAnimNames.length > 0) {
-      setAnimationNames((prevAnimationNames) => {
-        if (
-          prevAnimationNames.length === memoizedAnimNames.length &&
-          prevAnimationNames.every(
-            (value, index) => value === memoizedAnimNames[index]
-          )
-        ) {
-          return prevAnimationNames; // No need to update
-        } else {
-          return memoizedAnimNames;
-        }
-      });
-
-      // Set default animation name only once
-      if (!hasSetDefaultAnimationName.current) {
-        if (animationName === undefined) {
-          setAnimationName(memoizedAnimNames[0]);
-        }
-        hasSetDefaultAnimationName.current = true;
-      }
-    }
-  }, [memoizedAnimNames, setAnimationNames, animationName, setAnimationName]);
-
-  // Optional: Use hierarchy for debugging or other purposes
-  useEffect(() => {
-    console.log('Model Hierarchy:', hierarchy);
-  }, [hierarchy]);
-
-  return (
-    <ModelAnimator
-      scene={scene}
-      animations={animations}
-      animationName={animationName}
-      autoPlayAnimation={true}
-    />
-  );
-};

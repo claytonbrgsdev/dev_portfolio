@@ -1,44 +1,45 @@
 // src/three/hooks/useModelLoader.ts
 
-import { useEffect, useMemo } from 'react';
-import { usePreloadedModel } from '../utils/preloadModels';
-import {
-  getAnimationNames,
-  getMaterialList,
-  validateModel,
-  getObjectHierarchy,
-} from '../utils/modelUtils';
+import { useLoader } from '@react-three/fiber';
+import { GLTFLoader, GLTF } from 'three-stdlib';
+import { useState, useEffect } from 'react';
+import { AnimationClip, Object3D, Material, Mesh } from 'three';
 
-export const useModelLoader = (url: string) => {
-  const gltf = usePreloadedModel(url);
+interface ModelData {
+  scene: GLTF['scene'];
+  animations: AnimationClip[];
+  animationNames: string[];
+  materials: Material[];
+}
 
-  // Validate the model
-  const isValidModel = validateModel(gltf);
+export const useModelLoader = (url: string): ModelData | null => {
+  const gltf = useLoader(GLTFLoader, url) as GLTF;
+  const [modelData, setModelData] = useState<ModelData | null>(null);
 
-  // Extract animation names
-  const animationNames = useMemo(() => getAnimationNames(gltf), [gltf]);
-
-  // Extract materials
-  const materials = useMemo(() => getMaterialList(gltf.scene), [gltf]);
-
-  // Extract object hierarchy
-  const hierarchy = useMemo(() => getObjectHierarchy(gltf.scene), [gltf]);
-
-  // Debug logs
   useEffect(() => {
-    if (isValidModel) {
-      console.log(`Model loaded: ${url}`);
-      console.log('Available animations in the model:', animationNames);
-      console.log('Materials in the model:', materials.map((mat) => mat.name));
-      console.log('Object hierarchy:', hierarchy);
-    } else {
-      console.error(`Model at ${url} is invalid.`);
+    if (gltf) {
+      const animationNames = gltf.animations.map((clip: AnimationClip) => clip.name);
+      const materials: Material[] = [];
+
+      gltf.scene.traverse((object: Object3D) => {
+        if ((object as Mesh).isMesh) {
+          const mesh = object as Mesh;
+          if (Array.isArray(mesh.material)) {
+            materials.push(...mesh.material);
+          } else if (mesh.material) {
+            materials.push(mesh.material);
+          }
+        }
+      });
+
+      setModelData({
+        scene: gltf.scene,
+        animations: gltf.animations,
+        animationNames,
+        materials,
+      });
     }
-  }, [isValidModel, url, animationNames, materials, hierarchy]);
+  }, [gltf]);
 
-  if (!isValidModel) {
-    return null;
-  }
-
-  return { ...gltf, animationNames, materials, hierarchy }; // Return the model with additional info
+  return modelData;
 };
